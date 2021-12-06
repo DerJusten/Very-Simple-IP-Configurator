@@ -112,6 +112,11 @@ namespace Very_Simple_IP_Configurator
 
 
             IEnumerable<NetworkInterface> nics = GetAllNics();
+            //var nics2 = NetworkConfigurator.GetAllNetworkAdapter();
+            //foreach (var item in nics2)
+            //{
+            //    item.
+            //}
             comboBoxNetworkCard.DataSource = InsertNicsToDataTable(nics);
             comboBoxNetworkCard.ValueMember = "ID";
             comboBoxNetworkCard.DisplayMember = "Name";
@@ -142,7 +147,8 @@ namespace Very_Simple_IP_Configurator
 
             foreach (NetworkInterface nic in Nics)
             {
-                dt.Rows.Add(nic.Id, nic.Description);
+            
+                    dt.Rows.Add(nic.Id, nic.Description);
             }
             return dt;
         }
@@ -196,6 +202,7 @@ namespace Very_Simple_IP_Configurator
             }
             else
                 CurrentNicId = string.Empty;
+
         }
 
         private void customPb1_Click(object sender, EventArgs e)
@@ -295,6 +302,18 @@ namespace Very_Simple_IP_Configurator
         {
             LoadIpConfig();
             timerReload.Stop();
+        }
+
+        private void customPbNicEnable_Click(object sender, EventArgs e)
+        {
+            var nic =NetworkConfigurator.GetNicByID(CurrentNicId);
+            if(nic != null)
+            {
+                if (nic.OperationalStatus == OperationalStatus.Down)
+                    NetworkConfigurator.EnableNic(CurrentNicId);
+
+                LoadCombobox(CurrentNicId);
+            }
         }
     }
 

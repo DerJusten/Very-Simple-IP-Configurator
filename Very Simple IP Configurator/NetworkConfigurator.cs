@@ -44,7 +44,7 @@ namespace Very_Simple_IP_Configurator
                 }
             }
         }
-
+   
         public void EnableNic(string nicName)
         {
 
@@ -80,7 +80,7 @@ namespace Very_Simple_IP_Configurator
                 ProcessStartInfo psi = new ProcessStartInfo("netsh", "interface ip set address \"" + nic.Name + "\" static " + ipAddress.IpAddress + " " + ipAddress.Subnetmask + " none");
                 p.StartInfo = psi;
                 p.Start();
-                
+
             }
         }
         public static NetworkInterface GetNicByID(string ID)
@@ -98,6 +98,7 @@ namespace Very_Simple_IP_Configurator
                 using (var networkConfigs = networkConfigMng.GetInstances())
                 {
                     foreach (ManagementObject managementObject in networkConfigs.Cast<ManagementObject>().Where(managementObject => (bool)managementObject["IPEnabled"] && managementObject["SettingId"].Equals(NicID)))
+                    //foreach (ManagementObject managementObject in networkConfigs.Cast<ManagementObject>().Where(managementObject => managementObject["SettingId"].Equals(NicID)))
                     {
                         //there shouldn't be more than one object
                         return managementObject;
@@ -149,15 +150,16 @@ namespace Very_Simple_IP_Configurator
                     newIP["SubnetMask"] = ipParam.Select(s => s.Subnetmask).ToArray();
 
                     managementObject.InvokeMethod("EnableStatic", newIP, null);
-                    if (listGateway.Count > 0)
-                    {
-                        using (var newGateway = managementObject.GetMethodParameters("SetGateways"))
+                    if (listGateway != null)
+                        if (listGateway.Count > 0)
                         {
-                            newGateway["DefaultIPGateway"] = listGateway.Select(x => x.Gateway).ToArray();
-                            newGateway["GatewayCostMetric"] = listGateway.Select(y => y.Metric).ToArray();
-                            managementObject.InvokeMethod("SetGateways", newGateway, null);
+                            using (var newGateway = managementObject.GetMethodParameters("SetGateways"))
+                            {
+                                newGateway["DefaultIPGateway"] = listGateway.Select(x => x.Gateway).ToArray();
+                                newGateway["GatewayCostMetric"] = listGateway.Select(y => y.Metric).ToArray();
+                                managementObject.InvokeMethod("SetGateways", newGateway, null);
+                            }
                         }
-                    }
                 }
             }
         }
